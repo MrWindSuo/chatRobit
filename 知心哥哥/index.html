@@ -1,0 +1,120 @@
+<!DOCTYPE html>
+<html>
+  <head>
+    <meta charset="UTF-8" />
+    <link rel="stylesheet" href="./css/index.css" />
+    <title>HTML5模拟微信聊天界面</title>
+  </head>
+
+  <body>
+    <div id="container">
+      <div class="header">
+        <span style="float: left">知心姐姐</span>
+        <span style="float: right"></span>
+      </div>
+      <div class="wrapper" ref="wrapper">
+        <ul class="content">
+          <!-- 自己的 右边 -->
+          <li v-for="item in msgList">
+            <!-- 渲染自己的 -->
+            <template v-if="item.isSelf===true">
+              <img src="./img/sister.png" class="imgright" />
+              <span class="spanright">{{ item.msg }}</span>
+            </template>
+            <!-- 渲染 机器人的 -->
+            <template v-else>
+              <img src="./img/brother.png" class="imgleft" />
+              <span class="spanleft">{{ item.msg }}</span>
+            </template>
+          </li>
+        </ul>
+      </div>
+      <div class="footer">
+        <div id="user_face_icon">
+          <img src="./img/sister.png" alt="" />
+        </div>
+        <input
+          id="text"
+          type="text"
+          v-model.trim="inputValue"
+          @keyup.enter="chat"
+          placeholder="说点什么吧..."
+        />
+        <span id="btn" @click="chat">发送</span>
+        
+      </div>
+    </div>
+    <!-- 开发环境版本，包含了有帮助的命令行警告 jquery.js -->
+    <script src="https://cdn.jsdelivr.net/npm/vue/dist/vue.js"></script>
+    <!-- axios -->
+    <script src="https://cdn.jsdelivr.net/npm/axios/dist/axios.min.js"></script>
+    <script>
+      const app = new Vue({
+        el: '#container',
+        data: {
+          // 输入的内容
+          inputValue: '',
+          // 聊天信息
+          msgList: [
+            {
+              msg: '你好吗?',
+              isSelf: true
+            },
+            {
+              msg: '不,我不好!',
+              isSelf: false
+            },
+            {
+              msg: '不,你好!',
+              isSelf: true
+            },
+            {
+              msg: '大家好才是真的好!!',
+              isSelf: false
+            }
+          ]
+        },
+        updated () {
+          console.log('updated')
+          // 数据改变 页面更新完毕之后执行
+          // 再也不用写定时器
+          this.$refs.wrapper.scrollTop = 999999
+        },
+        methods: {
+          chat () {
+            if (this.inputValue === '') {
+              return
+            }
+            // 有内容
+            this.msgList.push({
+              msg: this.inputValue,
+              isSelf: true
+            })
+            // 定时器 就算给0秒 也是异步 等
+            // setTimeout(() => {
+            //   this.$refs.wrapper.scrollTop = 999999
+            // }, 0)
+            // 滚动
+            // 聊起来
+            axios({
+              url: 'http://www.liulongbin.top:3006/api/robot',
+              method: 'get',
+              params: {
+                spoken: this.inputValue
+              }
+            }).then(res => {
+              // console.log('res:', res)
+              this.msgList.push({
+                msg: res.data.data.info.text,
+                isSelf: false
+              })
+            })
+        
+            // 清空
+            this.inputValue = ''
+          }
+        }
+      })
+    </script>
+  </body>
+</html>

@@ -1,0 +1,124 @@
+<!DOCTYPE html>
+<html>
+  <head>
+    <meta charset="UTF-8" />
+    <link rel="stylesheet" href="./css/index.css" />
+    <title>HTML5模拟微信聊天界面</title>
+  </head>
+
+  <body>
+    <div id="container">
+      <div class="header">
+        <span style="float: left">知心姐姐</span>
+        <span style="float: right"></span>
+      </div>
+      <div class="wrapper" ref="wrapper">
+        <ul class="content">
+          <!-- 自己的 右边 -->
+          <li v-for="item in msgList">
+            <template v-if="item.isSelf===true">
+              <img src="./img/brother.png" class="imgright" /><span
+                class="spanright"
+                >{{item.msg}}</span
+              >
+            </template>
+
+            <!-- 机器人的 左边 -->
+
+            <template v-else>
+              <img src="./img/sister.png" class="imgleft" /><span
+                class="spanleft"
+                >{{item.msg}}</span
+              >
+            </template>
+          </li>
+          <!-- 生成列表 -->
+        </ul>
+      </div>
+      <div class="footer">
+        <div id="user_face_icon">
+          <img src="./img/brother.png" alt="" />
+        </div>
+        <input
+          id="text"
+          type="text"
+          placeholder="说点什么吧..."
+          v-model.trim="myChar"
+          @keyup.enter="myChat"
+        />
+        <span id="btn" @click="myChat">发送</span>
+        <audio :src="botVideo" id="voice" autoplay style="display: none;" ref="voice"></audio>
+      </div>
+    </div>
+    <!-- 开发环境版本，包含了有帮助的命令行警告 jquery.js -->
+    <script src="https://cdn.jsdelivr.net/npm/vue/dist/vue.js"></script>
+    <!-- axios -->
+    <script src="https://cdn.jsdelivr.net/npm/axios/dist/axios.min.js"></script>
+    <script>
+      const app = new Vue({
+        el: '#container',
+        data: {
+          msgList: [
+            {
+              msg: '你好吗？',
+              isSelf: true
+            },
+            {
+              msg: '我很好',
+              isSelf: false
+            }
+          ],
+          myChar: '',
+          botVideo:''
+        },
+        updated () {
+          // 数据改变 页面更新完毕之后执行
+          // 再也不用写定时器
+          this.$refs.wrapper.scrollTop = 999999;
+          this.$refs.voice.playbackRate = 1.3;
+        },
+        methods: {
+          myChat () {
+            if (this.myChar === '') {
+              return
+            }
+            this.msgList.push({
+              msg: this.myChar,
+              isSelf: true
+            })
+
+            axios({
+              url: 'http://www.liulongbin.top:3006/api/robot',
+              method: 'get',
+              params: {
+                spoken: this.myChar
+              }
+            }).then(res => {
+              //成功回调
+              const botText = res.data.data.info.text
+              this.msgList.push({
+                msg: botText,
+                isSelf: false
+              })
+              axios({
+                url: 'http://www.liulongbin.top:3006/api/synthesize',
+                method: 'get',
+                params: {
+                  text: botText
+                }
+              }).then(res => {
+                //成功回调
+                const video = res.data.voiceUrl
+                this.botVideo = video;
+                // document.getElementById('voice').playbackRate = 1.4
+                console.log(res)
+              })
+            })
+            this.myChar = '';
+            this.botVideo = '';
+          }
+        }
+      })
+    </script>
+  </body>
+</html>

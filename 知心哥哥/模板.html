@@ -1,0 +1,46 @@
+<!DOCTYPE html>
+<html>
+  <head>
+    <meta charset="UTF-8" />
+    <link rel="stylesheet" href="./css/index.css" />
+    <title>HTML5模拟微信聊天界面</title>
+  </head>
+
+  <body>
+    <div id="container">
+      <div class="header">
+        <span style="float: left">知心姐姐</span>
+        <span style="float: right"></span>
+      </div>
+      <div class="wrapper">
+        <ul class="content">
+          <!-- 自己的 右边 -->
+          <li>
+            <img src="./img/right.png" class="imgright" /><span
+              class="spanright"
+              >你好吗？</span
+            >
+          </li>
+          <!-- 机器人的 左边 -->
+          <li>
+            <img src="./img/left.gif" class="imgleft" /><span class="spanleft"
+              >不好</span
+            >
+          </li>
+          <!-- 生成列表 -->
+        </ul>
+      </div>
+      <div class="footer">
+        <div id="user_face_icon">
+          <img src="./img/right.png" alt="" />
+        </div>
+        <input id="text" type="text" placeholder="说点什么吧..." />
+        <span id="btn">发送</span>
+      </div>
+    </div>
+    <!-- 开发环境版本，包含了有帮助的命令行警告 jquery.js -->
+    <script src="https://cdn.jsdelivr.net/npm/vue/dist/vue.js"></script>
+    <!-- axios -->
+    <script src="https://cdn.jsdelivr.net/npm/axios/dist/axios.min.js"></script>
+  </body>
+</html>

@@ -1,0 +1,106 @@
+<!DOCTYPE html>
+<html>
+  <head>
+    <meta charset="UTF-8" />
+    <link rel="stylesheet" href="./css/index.css" />
+    <title>HTML5模拟微信聊天界面</title>
+  </head>
+
+  <body>
+    <div id="container">
+      <div class="header">
+        <span style="float: left">知心哥哥</span>
+        <span style="float: right"></span>
+      </div>
+      <div class="wrapper" ref="wrapper">
+        <ul class="content">
+          <!-- 自己的 右边 -->
+          <li v-for="item in message">
+            <template v-if="!item.isSister">
+              <img src="./img/sister.png" class="imgright" /><span
+                class="spanright"
+                >{{item.msg}}</span
+              >
+            </template>
+            <template v-else>
+              <img src="./img/Yasuo.png" class="imgleft" /><span
+                class="spanleft"
+                >{{item.msg}}</span
+              >
+            </template>
+          </li>
+          <!-- 生成列表 -->
+        </ul>
+      </div>
+
+      <div class="footer">
+        <div id="user_face_icon">
+          <img src="./img/sister.png" alt="" />
+        </div>
+        <input
+          id="text"
+          type="text"
+          placeholder="说点什么吧..."
+          @keyup.enter="chat"
+          v-model.trim="inputValue"
+        />
+        <span id="btn">发送</span>
+      </div>
+    </div>
+    <!-- 开发环境版本，包含了有帮助的命令行警告 jquery.js -->
+    <script src="https://cdn.jsdelivr.net/npm/vue/dist/vue.js"></script>
+    <!-- axios -->
+    <script src="https://cdn.jsdelivr.net/npm/axios/dist/axios.min.js"></script>
+    <script>
+      const app = new Vue({
+        el: '#container',
+        data: {
+          message: [
+            {
+              msg: '你好',
+              isSister: false
+            },
+            {
+              msg: '我不好',
+              isSister: true
+            }
+          ],
+          inputValue: ''
+        },
+
+        methods: {
+          chat () {
+            if (this.message !== '') {
+              // 添加自己的
+              this.message.push({
+                isSister: false,
+                msg: this.inputValue
+              })
+              setTimeout(() => {
+                this.$refs.wrapper.scrollTop = 9999
+              }, 0)
+
+              axios
+                .get('http://www.liulongbin.top:3006/api/robot', {
+                  params: {
+                    spoken: this.inputValue
+                  }
+                })
+                .then(res => {
+                  this.message.push({
+                    isSister: true,
+                    msg: res.data.data.info.text
+                  })
+                  setTimeout(() => {
+                    this.$refs.wrapper.scrollTop = 9999
+                  }, 0)
+                })
+              // 清空
+              this.inputValue = ''
+            }
+          }
+        }
+      })
+    </script>
+  </body>
+</html>
